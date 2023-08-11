@@ -20,11 +20,22 @@ namespace Fungus
         [Tooltip("Time to begin playing in seconds. If the audio file is compressed, the time index may be inaccurate.")]
         [SerializeField] protected float atTime;
 
+        [Tooltip("The volume at which the music will play")]
+        [Range(0f,1f)]
+        [SerializeField] protected float volume = 1f;
+
         [Tooltip("The music will start playing again at end.")]
         [SerializeField] protected bool loop = true;
     
         [Tooltip("Length of time to fade out previous playing music.")]
         [SerializeField] protected float fadeDuration = 1f;
+
+        [Tooltip("Music channel to use for this music clip.")]
+        [Range(0,2)]
+        [SerializeField] protected int audioChannel = 0;
+
+        [Tooltip("Whether to synchronize this with channel 0 or not.")]
+        [SerializeField] protected bool sync;
 
         #region Public members
 
@@ -33,7 +44,7 @@ namespace Fungus
             var musicManager = FungusManager.Instance.MusicManager;
 
             float startTime = Mathf.Max(0, atTime);
-            musicManager.PlayMusic(musicClip, loop, fadeDuration, startTime);
+            musicManager.PlayMusic(musicClip, loop, volume, fadeDuration, startTime, audioChannel, sync);
                 
             Continue();
         }

@@ -25,6 +25,10 @@ namespace Fungus
         [Tooltip("Wait until the volume fade has completed before continuing.")]
         [SerializeField] protected bool waitUntilFinished = true;
 
+        [Tooltip("Music channel to alter.")]
+        [Range(0,2)]
+        [SerializeField] protected int audioChannel = 0;
+
         #region Public members
 
         public override void OnEnter()
@@ -36,7 +40,7 @@ namespace Fungus
                 {
                     Continue();
                 }
-            });
+            }, audioChannel);
 
             if (!waitUntilFinished)
             {
@@ -46,7 +50,7 @@ namespace Fungus
 
         public override string GetSummary()
         {
-            return "Set to " + volume + " over " + fadeDuration + " seconds.";
+            return "Set channel " + audioChannel + " to " + volume + " over " + fadeDuration + " seconds.";
         }
 
         public override Color GetButtonColor()

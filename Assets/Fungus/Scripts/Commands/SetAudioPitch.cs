@@ -25,6 +25,10 @@ namespace Fungus
         [Tooltip("Wait until the pitch change has finished before executing next command")]
         [SerializeField] protected bool waitUntilFinished = true;
 
+        [Tooltip("Music channel to alter.")]
+        [Range(0,2)]
+        [SerializeField] protected int audioChannel = 0;
+
         #region Public members
 
         public override void OnEnter()
@@ -38,7 +42,7 @@ namespace Fungus
 
             var musicManager = FungusManager.Instance.MusicManager;
 
-            musicManager.SetAudioPitch(pitch, fadeDuration, onComplete);
+            musicManager.SetAudioPitch(pitch, fadeDuration, onComplete, audioChannel);
 
             if (!waitUntilFinished)
             {

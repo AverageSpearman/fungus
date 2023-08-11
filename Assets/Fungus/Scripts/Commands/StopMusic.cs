@@ -16,11 +16,15 @@ namespace Fungus
     {
         #region Public members
 
+        [Tooltip("Music channel to stop.")]
+        [Range(0,2)]
+        [SerializeField] protected int audioChannel = 0;
+
         public override void OnEnter()
         {
             var musicManager = FungusManager.Instance.MusicManager;
 
-            musicManager.StopMusic();
+            musicManager.StopMusic(audioChannel);
 
             Continue();
         }
@@ -28,6 +32,11 @@ namespace Fungus
         public override Color GetButtonColor()
         {
             return new Color32(242, 209, 176, 255);
+        }
+
+        public override string GetSummary()
+        {
+            return "Stop channel " + audioChannel;
         }
 
         #endregion

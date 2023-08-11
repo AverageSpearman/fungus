@@ -35,7 +35,8 @@ namespace Fungus
 
         [Tooltip("Use the UI Event System to check for drag events. Clicks that hit an overlapping UI object will be ignored. Camera must have a PhysicsRaycaster component, or a Physics2DRaycaster for 2D colliders.")]
         [SerializeField] protected bool useEventSystem;
-
+        [Tooltip("CUSTOM CODE: Change the hotspot of the mouse cursor.")]
+        [SerializeField] protected Vector2 normalizedHotspot = new Vector2(0.5f,0.5f);
         [SerializeField] protected bool beingDragged;
 
         public virtual bool BeingDragged
@@ -43,7 +44,7 @@ namespace Fungus
             get { return beingDragged; }
             set { beingDragged = value; }
         }
-
+        protected Canvas canvas;
         protected Vector3 startingPosition;
         protected bool updatePosition = false;
         protected Vector3 newPosition;
@@ -108,7 +109,12 @@ namespace Fungus
             // Offset the object so that the drag is anchored to the exact point where the user clicked it
             float x = Input.mousePosition.x;
             float y = Input.mousePosition.y;
-            delta = Camera.main.ScreenToWorldPoint(new Vector3(x, y, 10f)) - transform.position;
+            if(!useEventSystem){
+                delta = Camera.main.ScreenToWorldPoint(new Vector3(x, y, 10f)) - transform.position;
+            } else {
+                delta = new Vector3(x, y, 10f) - transform.position;
+            }
+            
             delta.z = 0f;
 
             startingPosition = transform.position;
@@ -128,9 +134,16 @@ namespace Fungus
             float x = Input.mousePosition.x;
             float y = Input.mousePosition.y;
             float z = transform.position.z;
-
-            newPosition = Camera.main.ScreenToWorldPoint(new Vector3(x, y, 10f)) - delta;
-            newPosition.z = z;
+            if(!useEventSystem){ //Handling Standard Objects
+                newPosition = Camera.main.ScreenToWorldPoint(new Vector3(x, y, 10f)) - delta;
+                newPosition.z = z;
+            } else {
+                if(canvas == null) canvas = GetComponentInParent<Canvas>();
+                Vector2 localPos;
+                RectTransformUtility.ScreenPointToLocalPointInRectangle((RectTransform)canvas.transform, Input.mousePosition - delta, canvas.worldCamera, out localPos);
+                newPosition = canvas.transform.TransformPoint(localPos);
+                newPosition.z = z;
+            }
             updatePosition = true;
         }
 
@@ -191,8 +204,13 @@ namespace Fungus
             {
                 return;
             }
-
-            Cursor.SetCursor(cursorTexture, Vector2.zero, CursorMode.Auto);
+            if(cursorTexture == null){
+                return;
+            }
+            Vector2 hotspot = normalizedHotspot;
+            hotspot.x *= cursorTexture.width;
+            hotspot.y *= cursorTexture.height;
+            Cursor.SetCursor(cursorTexture, hotspot, CursorMode.Auto);
         }
 
         #region Legacy OnMouseX methods

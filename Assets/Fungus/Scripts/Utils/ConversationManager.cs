@@ -480,6 +480,7 @@ namespace Fungus
 
                 if (!string.IsNullOrEmpty(item.Text)) { 
                     exitSayWait = false;
+                    if(item.ClearPrev == false) item.Text = string.Concat(" ", item.Text); // CUSTOM
                     sayDialog.Say(item.Text, item.ClearPrev, item.WaitForInput, item.FadeDone, true, false, null, () => {
                         exitSayWait = true;
                     });

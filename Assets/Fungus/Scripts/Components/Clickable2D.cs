@@ -3,6 +3,7 @@
 
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.Events;
 
 namespace Fungus
 {
@@ -22,14 +23,25 @@ namespace Fungus
         [Tooltip("Use the UI Event System to check for clicks. Clicks that hit an overlapping UI object will be ignored. Camera must have a PhysicsRaycaster component, or a Physics2DRaycaster for 2D colliders.")]
         [SerializeField] protected bool useEventSystem;
 
+        [Tooltip("CUSTOM CODE: Change the hotspot of the mouse cursor.")]
+        [SerializeField] protected Vector2 normalizedHotspot = new Vector2(0.0f,0.0f);
+        public UnityEvent onMouseEnter;
+        public UnityEvent onMouseExit;
+        public UnityEvent onMouseClick;
         protected virtual void ChangeCursor(Texture2D cursorTexture)
         {
             if (!clickEnabled)
             {
                 return;
             }
-
-            Cursor.SetCursor(cursorTexture, Vector2.zero, CursorMode.Auto);
+            
+            if(cursorTexture == null){
+                return;
+            }
+            Vector2 hotspot = normalizedHotspot;
+            hotspot.x *= cursorTexture.width;
+            hotspot.y *= cursorTexture.height;
+            Cursor.SetCursor(cursorTexture, hotspot, CursorMode.Auto); //MODIFIED: hotspot is changeable
         }
 
         protected virtual void DoPointerClick()
@@ -47,12 +59,24 @@ namespace Fungus
         protected virtual void DoPointerEnter()
         {
             ChangeCursor(hoverCursor);
+            if(onMouseEnter != null) onMouseEnter.Invoke();
         }
 
         protected virtual void DoPointerExit()
         {
             // Always reset the mouse cursor to be on the safe side
             SetMouseCursor.ResetMouseCursor();
+            if(onMouseExit != null) onMouseExit.Invoke();
+        }
+
+        void Update()
+        {
+            //disable clicks when mixing
+            // if (tag != "Immune")
+            // {
+            //     clickEnabled =  !GameManager.gm.notebookOpen && !GameManager.gm.UIOpen;
+            // }
+            
         }
 
         #region Legacy OnMouseX methods
@@ -96,9 +120,10 @@ namespace Fungus
 
         public void OnPointerClick(PointerEventData eventData)
         {
-            if (useEventSystem)
+            Debug.Log(gameObject.name + ":" + eventData.pointerClick);
+            if (useEventSystem && eventData.pointerClick == gameObject)
             {
-                DoPointerClick();
+                if(eventData.button == PointerEventData.InputButton.Left) DoPointerClick();
             }
         }
 
@@ -108,7 +133,8 @@ namespace Fungus
 
         public void OnPointerEnter(PointerEventData eventData)
         {
-            if (useEventSystem)
+            Debug.Log(gameObject.name + ":" + eventData.pointerEnter);
+            if (useEventSystem && eventData.pointerEnter == gameObject)
             {
                 DoPointerEnter();
             }
