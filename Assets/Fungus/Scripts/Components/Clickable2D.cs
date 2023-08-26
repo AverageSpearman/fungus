@@ -120,8 +120,9 @@ namespace Fungus
 
         public void OnPointerClick(PointerEventData eventData)
         {
-            Debug.Log(gameObject.name + ":" + eventData.pointerClick);
-            if (useEventSystem && eventData.pointerClick == gameObject)
+            Debug.Log(gameObject.name + ":" + eventData.pointerPress);
+            
+            if (useEventSystem && eventData.pointerPress == gameObject)
             {
                 if(eventData.button == PointerEventData.InputButton.Left) DoPointerClick();
             }
